@@ -144,14 +144,17 @@ class ResBlock(nn.Module):
         out = self.conv2(out)
         return out + x
 
+import torch.nn as nn
+import model2
+
 class DMPHN(nn.Module):
-    def __init__(self,):
+    def __init__(self):
         super(DMPHN, self).__init__()
-        self.encoder = {}
-        self.decoder = {}
+        self.encoder = nn.ModuleDict()
+        self.decoder = nn.ModuleDict()
         for s in ['s1', 's2', 's3', 's4']:
-            self.encoder[s] = {}
-            self.decoder[s] = {}
+            self.encoder[s] = nn.ModuleDict()
+            self.decoder[s] = nn.ModuleDict()
             for lv in ['lv1', 'lv2', 'lv3']:
                 self.encoder[s][lv] = model2.Encoder()
                 self.decoder[s][lv] = model2.Decoder()

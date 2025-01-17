@@ -34,8 +34,8 @@ class NH_HazeDataset(Dataset):
 
     def __getitem__(self, idx):
         image_name = self.hazed_image_files[idx][0:-1].split('/')
-        hazed_image = Image.open(os.path.join(self.root_dir, image_name[0], image_name[1], image_name[2])).convert('RGB')
-        dehazed_image = Image.open(os.path.join(self.root_dir, image_name[0], 'gt', image_name[2])).convert('RGB')  # change the filename
+        hazed_image = Image.open(os.path.join(self.root_dir, 'hazy', image_name[0])).convert('RGB')
+        dehazed_image = Image.open(os.path.join(self.root_dir, 'clean', image_name[0])).convert('RGB')
         
         if self.rotation:
             degree = random.choice([90, 180, 270])

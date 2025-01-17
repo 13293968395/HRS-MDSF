@@ -30,10 +30,10 @@ criterion = CustomLoss_function()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 scheduler = StepLR(optimizer, step_size=1000, gamma=0.1)
 train_dataset = NH_HazeDataset(
-            hazed_image_files='new_dataset3/train_patch_hazy.txt',
+            hazed_image_files='/root/lanyun-tmp/NH-HAZE2/Train/train.txt',
             # make changes here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            dehazed_image_files='new_dataset3/train_patch_gt.txt',
-            root_dir='new_dataset3/',
+            dehazed_image_files='/root/lanyun-tmp/NH-HAZE2/Train/train.txt',
+            root_dir='/root/lanyun-tmp/NH-HAZE2/Train/',
             crop=True,
             crop_size=CROP_SIZE,
             rotation=True,
@@ -43,9 +43,9 @@ train_dataset = NH_HazeDataset(
             ]))
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 test_dataset = NH_HazeDataset(
-            hazed_image_files='new_dataset3/test_patch_hazy.txt',
-            dehazed_image_files='new_dataset3/test_patch_gt.txt',
-            root_dir='new_dataset3/',
+            hazed_image_files='/root/lanyun-tmp/NH-HAZE2/Test/test.txt',
+            dehazed_image_files='/root/lanyun-tmp/NH-HAZE2/Test/test.txt',
+            root_dir='/root/lanyun-tmp/NH-HAZE2/Test/',
             crop=True,
             crop_size=CROP_SIZE,
             rotation=True,
@@ -54,5 +54,7 @@ test_dataset = NH_HazeDataset(
                 transforms.ToTensor()
             ]))
 
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+
 train(model=model, criterion=criterion, optimizer=optimizer, trainloader=train_loader, 
-      epochs=EPOCHS, testloader=test_dataset, testEpoch=5, scheduler=scheduler)
+      epochs=EPOCHS, testloader=test_loader, testEpoch=5, scheduler=scheduler)
