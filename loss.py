@@ -18,12 +18,12 @@ class CustomLoss_function(nn.Module):
         self.tv_loss = TVLoss()
 
     def forward(self, out_images, target_images):
-
-        perception_loss = self.mse_loss(self.loss_network(out_images), self.loss_network(target_images))
-        recons_loss = 0.6*self.mae_loss(out_images, target_images) + 0.4*self.mse_loss(out_images, target_images)
-        tv_loss = self.tv_loss(out_images)
-
-        loss = recons_loss + 0.006*perception_loss + 2e-8*tv_loss
+        loss = 0
+        for out_image in out_images:
+            perception_loss = self.mse_loss(self.loss_network(out_image), self.loss_network(target_images))
+            recons_loss = 0.6*self.mae_loss(out_image, target_images) + 0.4*self.mse_loss(out_image, target_images)
+            tv_loss = self.tv_loss(out_image)
+            loss += recons_loss + 0.006*perception_loss + 2e-8*tv_loss
 
         return loss # , recons_loss, perception_loss, tv_loss
 

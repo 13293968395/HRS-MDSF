@@ -126,8 +126,8 @@ def main():
             feature = {}
             residual = {}
             for s in ['s1', 's2', 's3', 's4']:
-                feature[s] = {}
-                residual[s] = {}
+                feature[s] = {} # encoder output
+                residual[s] = {} # decoder output
 
             images['gt'] = Variable(inputs['dehazed_image'] - 0.5).cuda(GPU)
             images['lv1'] = Variable(inputs['hazed_image'] - 0.5).cuda(GPU)
@@ -151,8 +151,10 @@ def main():
             residual[s]['lv3_top'] = decoder[s]['lv3'](feature[s]['lv3_top'])
             residual[s]['lv3_bot'] = decoder[s]['lv3'](feature[s]['lv3_bot'])
 
-            feature[s]['lv2_1'] = encoder[s]['lv2'](images['lv2_1'] + residual[s]['lv3_top']) + feature[s]['lv3_top']
-            feature[s]['lv2_2'] = encoder[s]['lv2'](images['lv2_2'] + residual[s]['lv3_bot']) + feature[s]['lv3_bot']
+            feature[s]['lv2_1'] = encoder[s]['lv2'](images['lv2_1'] + residual[s]['lv3_top']) + \
+                                    feature[s]['lv3_top']
+            feature[s]['lv2_2'] = encoder[s]['lv2'](images['lv2_2'] + residual[s]['lv3_bot']) +  \
+                                    feature[s]['lv3_bot']
             feature[s]['lv2'] = torch.cat((feature[s]['lv2_1'], feature[s]['lv2_2']), 2)
             residual[s]['lv2'] = decoder[s]['lv2'](feature[s]['lv2'])
 
@@ -170,17 +172,17 @@ def main():
             residual[s]['lv3_top'] = decoder[s]['lv3'](feature[s]['lv3_top'])
             residual[s]['lv3_bot'] = decoder[s]['lv3'](feature[s]['lv3_bot'])
 
-            feature[s]['lv2_1'] = encoder[s]['lv2'](images['lv2_1'] +
-                residual[ps]['lv1'][:, :, 0:int(H / 2), :] + residual[s]['lv3_top']) + feature[s]['lv3_top'] + \
-                                  feature[ps]['lv2_1']
-            feature[s]['lv2_2'] = encoder[s]['lv2'](images['lv2_2']+
-                residual[ps]['lv1'][:, :, int(H / 2):H, :] + residual[s]['lv3_bot']) + feature[s]['lv3_bot'] + \
-                                  feature[ps]['lv2_2']
+            feature[s]['lv2_1'] = encoder[s]['lv2'](images['lv2_1']+residual[ps]['lv1'][:, :, 0:int(H / 2), :] + residual[s]['lv3_top']) + \
+                                    feature[s]['lv3_top'] + \
+                                    feature[ps]['lv2_1']
+            feature[s]['lv2_2'] = encoder[s]['lv2'](images['lv2_2']+residual[ps]['lv1'][:, :, int(H / 2):H, :] + residual[s]['lv3_bot']) + \
+                                    feature[s]['lv3_bot'] + \
+                                    feature[ps]['lv2_2']
             feature[s]['lv2'] = torch.cat((feature[s]['lv2_1'], feature[s]['lv2_2']), 2)
-            residual[s]['lv2'] = decoder[s]['lv2'](feature[s]['lv2']) + residual['s1']['lv1']
+            residual[s]['lv2'] = decoder[s]['lv2'](feature[s]['lv2'])
 
-            feature[s]['lv1'] = encoder[s]['lv1'](images['lv1']+
-                residual[ps]['lv1'] + residual[s]['lv2']) + feature[s]['lv2'] + \
+            feature[s]['lv1'] = encoder[s]['lv1'](images['lv1']+ residual[ps]['lv1'] + residual[s]['lv2']) + \
+                                feature[s]['lv2'] + \
                                 feature[ps]['lv1']
             residual[s]['lv1'] = decoder[s]['lv1'](feature[s]['lv1'])
 
@@ -195,17 +197,17 @@ def main():
             residual[s]['lv3_top'] = decoder[s]['lv3'](feature[s]['lv3_top'])
             residual[s]['lv3_bot'] = decoder[s]['lv3'](feature[s]['lv3_bot'])
 
-            feature[s]['lv2_1'] = encoder[s]['lv2'](images['lv2_1']+
-                residual[ps]['lv1'][:, :, 0:int(H / 2), :] + residual[s]['lv3_top']) + feature[s]['lv3_top'] + \
-                                  feature[ps]['lv2_1']
-            feature[s]['lv2_2'] = encoder[s]['lv2'](images['lv2_2']+
-                residual[ps]['lv1'][:, :, int(H / 2):H, :] + residual[s]['lv3_bot']) + feature[s]['lv3_bot'] + \
-                                  feature[ps]['lv2_2']
+            feature[s]['lv2_1'] = encoder[s]['lv2'](images['lv2_1']+residual[ps]['lv1'][:, :, 0:int(H / 2), :]+residual[s]['lv3_top']) + \
+                                    feature[s]['lv3_top'] + \
+                                    feature[ps]['lv2_1']
+            feature[s]['lv2_2'] = encoder[s]['lv2'](images['lv2_2']+residual[ps]['lv1'][:, :, int(H / 2):H, :]+residual[s]['lv3_bot']) + \
+                                    feature[s]['lv3_bot'] + \
+                                    feature[ps]['lv2_2']
             feature[s]['lv2'] = torch.cat((feature[s]['lv2_1'], feature[s]['lv2_2']), 2)
-            residual[s]['lv2'] = decoder[s]['lv2'](feature[s]['lv2']) + residual['s1']['lv1']
+            residual[s]['lv2'] = decoder[s]['lv2'](feature[s]['lv2'])# + residual['s1']['lv1']
 
-            feature[s]['lv1'] = encoder[s]['lv1'](images['lv1']+
-                residual[ps]['lv1'] + residual[s]['lv2']) + feature[s]['lv2'] + \
+            feature[s]['lv1'] = encoder[s]['lv1'](images['lv1']+residual[ps]['lv1']+residual[s]['lv2']) +\
+                                feature[s]['lv2'] + \
                                 feature[ps]['lv1']
             residual[s]['lv1'] = decoder[s]['lv1'](feature[s]['lv1'])
 
@@ -234,8 +236,10 @@ def main():
                                 feature[ps]['lv1']
             residual[s]['lv1'] = decoder[s]['lv1'](feature[s]['lv1'])
 
-            loss = custom_loss_fn(residual['s4']['lv1'], images['gt']) + custom_loss_fn(residual['s3']['lv1'], images['gt']) + custom_loss_fn(
-                residual['s2']['lv1'], images['gt']) + custom_loss_fn(residual['s1']['lv1'], images['gt'])
+            loss = custom_loss_fn(residual['s4']['lv1'], images['gt']) + \
+                    custom_loss_fn(residual['s3']['lv1'], images['gt']) + \
+                        custom_loss_fn(residual['s2']['lv1'], images['gt']) + \
+                            custom_loss_fn(residual['s1']['lv1'], images['gt'])
 
             for s in ['s1', 's2', 's3', 's4']:
                 for lv in ['lv1', 'lv2', 'lv3']:

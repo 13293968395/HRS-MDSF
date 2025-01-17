@@ -8,7 +8,9 @@ class EBlock(nn.Module):
     def __init__(self, out_channel, num_res, mode):
         super(EBlock, self).__init__()
 
+        # MCSF
         layers = [ResBlock(out_channel, out_channel, mode) for _ in range(num_res-1)]
+        # MCSF + MDSF
         layers.append(ResBlock(out_channel, out_channel, mode, filter=True))
 
         self.layers = nn.Sequential(*layers)
@@ -28,7 +30,7 @@ class DBlock(nn.Module):
     def forward(self, x):
         return self.layers(x)
 
-
+# 
 class SCM(nn.Module):
     def __init__(self, out_plane):
         super(SCM, self).__init__()

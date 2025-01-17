@@ -69,7 +69,7 @@ class AvgPool2d(nn.Module):
 # --------------------------------------------------------------------------------
 
 
-
+# Conv + GELU 
 class BasicConv(nn.Module):
     def __init__(self, in_channel, out_channel, kernel_size, stride, bias=True, norm=False, relu=True, transpose=False):
         super(BasicConv, self).__init__()
@@ -115,6 +115,7 @@ class Gap(nn.Module):
         x_d = x_d  * self.fscale_d[None, :, None, None]
         return x_d + x_h
 
+
 class ResBlock(nn.Module):
     def __init__(self, in_channel, out_channel, mode, filter=False):
         super(ResBlock, self).__init__()
@@ -132,21 +133,23 @@ class ResBlock(nn.Module):
     def forward(self, x):
         out = self.conv1(x)
        
+       # MDSF
         if self.filter:
             k3, k5 = torch.chunk(out, 2, dim=1)
             out_k3 = self.dyna(k3)
             out_k5 = self.dyna_2(k5)
             out = torch.cat((out_k3, out_k5), dim=1)
-            
+        
+        # MCSF
         non_local, local = torch.chunk(out, 2, dim=1)
         non_local = self.global_ap(non_local)
-        local = self.localap(local)
+        local = self.localap(local) 
         out = torch.cat((non_local, local), dim=1)
         out = self.conv2(out)
         return out + x
 
 
-
+# MDSF
 class dynamic_filter(nn.Module):
     def __init__(self, inchannels, mode, kernel_size=3, stride=1, group=8):
         super(dynamic_filter, self).__init__()
