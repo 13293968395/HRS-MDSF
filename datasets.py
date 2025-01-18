@@ -79,5 +79,5 @@ class NH_HazeDataset(Dataset):
             dehazed_image_s1 = transforms.ToTensor()(dehazed_image_s1)
             return {'hazed_image_s1': hazed_image_s1, 'hazed_image_s2': hazed_image_s2, 'hazed_image_s3': hazed_image_s3, 'dehazed_image_s1': dehazed_image_s1, 'dehazed_image_s2': dehazed_image_s2, 'dehazed_image_s3': dehazed_image_s3}
         else:
-            return {'hazed_image': hazed_image, 'dehazed_image': dehazed_image}
+            return hazed_image.cuda(),  dehazed_image.cuda()
         

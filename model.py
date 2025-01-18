@@ -168,8 +168,7 @@ class DMPHN(nn.Module):
             feature[s] = {} # encoder output
             residual[s] = {} # decoder output
 
-        images['gt'] = Variable(inputs['dehazed_image'] - 0.5).cuda()
-        images['lv1'] = Variable(inputs['hazed_image'] - 0.5).cuda()
+        images['lv1'] = Variable(inputs - 0.5).cuda()
         H = images['lv1'].size(2)
         W = images['lv1'].size(3)
 
@@ -192,12 +191,12 @@ class DMPHN(nn.Module):
                 feature[s]['lv3_3'] = self.encoder[s]['lv3'](images['lv3_3'] + residual[ps]['lv1'][:, :, int(H / 2):H, 0:int(W / 2)])
                 feature[s]['lv3_4'] = self.encoder[s]['lv3'](images['lv3_4'] + residual[ps]['lv1'][:, :, int(H / 2):H, int(W / 2):W])
 
+            feature[s]['lv3_top'] = torch.cat((feature[s]['lv3_1'], feature[s]['lv3_2']), 3)
+            feature[s]['lv3_bot'] = torch.cat((feature[s]['lv3_3'], feature[s]['lv3_4']), 3)
+
             if ps is not None:
                 feature[s]['lv3_top'] += feature[ps]['lv3_top']
                 feature[s]['lv3_bot'] += feature[ps]['lv3_bot']
-
-            feature[s]['lv3_top'] = torch.cat((feature[s]['lv3_1'], feature[s]['lv3_2']), 3)
-            feature[s]['lv3_bot'] = torch.cat((feature[s]['lv3_3'], feature[s]['lv3_4']), 3)
 
             residual[s]['lv3_top'] = self.decoder[s]['lv3'](feature[s]['lv3_top'])
             residual[s]['lv3_bot'] = self.decoder[s]['lv3'](feature[s]['lv3_bot'])
@@ -226,9 +225,9 @@ class DMPHN(nn.Module):
             # if ps is not None:
             #     residual[s]['lv2'] += residual[ps]['lv2']
             if ps is None:
-                feature[s]['lv1'] = self.encoder[s]['lv1'](images['lv1'] + residual[s]['lv2'] + residual[ps]['lv1'])
+                feature[s]['lv1'] = self.encoder[s]['lv1'](images['lv1'] + residual[s]['lv2'])
             else:
-                feature[s]['lv1'] = self.encoder[s]['lv1'](images['lv1'] + residual[s]['lv2'])# + feature[s]['lv2']
+                feature[s]['lv1'] = self.encoder[s]['lv1'](images['lv1'] + residual[s]['lv2'] + residual[ps]['lv1'])# + feature[s]['lv2']
 
             feature[s]['lv1'] += feature[s]['lv2']
 

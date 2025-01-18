@@ -7,8 +7,10 @@ import torch
 import argparse
 from torch.optim.lr_scheduler import StepLR
 
+
+
 parser = argparse.ArgumentParser(description="Deep Multi-Patch Hierarchical Network")
-parser.add_argument("-e", "--epochs", type=int, default=100)
+parser.add_argument("-e", "--epochs", type=int, default=500)
 parser.add_argument("-se", "--start_epoch", type=int, default=0)
 parser.add_argument("-b", "--batchsize", type=int, default=16)
 parser.add_argument("-c", "--cropsize", type=int, default=60)
@@ -41,7 +43,7 @@ train_dataset = NH_HazeDataset(
             transform=transforms.Compose([
                 transforms.ToTensor()
             ]))
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 test_dataset = NH_HazeDataset(
             hazed_image_files='/root/lanyun-tmp/NH-HAZE2/Test/test.txt',
             dehazed_image_files='/root/lanyun-tmp/NH-HAZE2/Test/test.txt',
@@ -54,7 +56,9 @@ test_dataset = NH_HazeDataset(
                 transforms.ToTensor()
             ]))
 
-test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
 
 train(model=model, criterion=criterion, optimizer=optimizer, trainloader=train_loader, 
       epochs=EPOCHS, testloader=test_loader, testEpoch=5, scheduler=scheduler)
+
+#  1.12.1 py3.10_cuda11.3_cudnn8.3.2_0
